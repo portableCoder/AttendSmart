@@ -48,6 +48,8 @@ class _AppNewState extends State<AppNew> {
         .addPostFrameCallback((_) => _read(context));
     WidgetsBinding.instance
         .addPostFrameCallback((_) => _readAttendence(context));
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => _readAttendenceGraphData(context));
   }
 
   void initSpeechRecognizer() {
@@ -89,6 +91,10 @@ class _AppNewState extends State<AppNew> {
 
 
   ];
+  List<Map<String,String>> AttendanceGraphData = [
+
+
+  ];
 
 
 
@@ -105,6 +111,48 @@ class _AppNewState extends State<AppNew> {
 
   ];
 
+  void AddGraphData(){
+    int totalNumber = 0;
+    for(int i =0;i<listOfColumns.length;i++){
+      if(listOfColumns[i]['State'] == "P"){
+        totalNumber+=1;
+
+      }
+    }
+    AttendanceGraphData.add({widget.date.toString():totalNumber.toString()});
+
+  }
+  Future<void> _GraphData() async {
+
+    final directory = await  getExternalStorageDirectory();
+
+    final file = File('${directory.path}/Graph.txt');
+    final jsonString = jsonEncode(AttendanceGraphData);
+    await file.writeAsString(jsonString);
+    print('saved');
+
+  }
+
+  Future<void> _readAttendenceGraphData(BuildContext context) async {
+    try {
+      final directory = await getExternalStorageDirectory();
+      final file = File('${directory.path}/Graph.txt');
+
+
+      final decoded = jsonDecode(await file.readAsString()) as List;
+      setState(() {
+        AttendanceGraphData = decoded.cast<Map<String, dynamic>>()
+            .map((map) => map.cast<String, String>()).toList();
+      });
+
+      print("reading stats sucessful");
+
+    }
+    catch(e){
+
+    }
+      print(' reading stats failed');
+    }
 
 //TO save file a listofColumns as JSON strings
    Future<void> _save() async {
@@ -293,11 +341,14 @@ class _AppNewState extends State<AppNew> {
                     }
 
                     _saveAttendence();
+                    AddGraphData();
+
+                    _GraphData();
 
                     print(FileName);
 
 
-                  }, child: Icon(Icons.save),
+                  }, child: Icon(Icons.check),
 
               ),
             ),

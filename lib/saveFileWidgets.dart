@@ -52,7 +52,12 @@ class SaveWidgets {
 
     }
   }
-  //TO read from file JSON strings as listOfColumns
+
+   //TO read from file JSON strings as listOfColumns
+
+
+  //Reads date and total Attendance
+
 
 
 
